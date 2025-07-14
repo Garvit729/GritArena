@@ -3,7 +3,7 @@ const User =  require("../models/user")
 const validate = require('../utils/validator');
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-
+const Submission = require("../models/submission")
 
 
 const register = async (req,res)=>{
@@ -100,7 +100,47 @@ const logout = async(req,res)=>{
 }
 
 
+const adminRegister = async(req,res)=>{
+    try{
+        // validate the data;
+    //   if(req.result.role!='admin')
+    //     throw new Error("Invalid Credentials");  
+      validate(req.body); 
+      const {firstName, emailId, password}  = req.body;
+
+      req.body.password = await bcrypt.hash(password, 10);
+    //
+    
+     const user =  await User.create(req.body);
+     const token =  jwt.sign({_id:user._id , emailId:emailId, role:user.role},process.env.JWT_KEY,{expiresIn: 60*60});
+     res.cookie('token',token,{maxAge: 60*60*1000});
+     res.status(201).send("User Registered Successfully");
+    }
+    catch(err){
+        res.status(400).send("Error: "+err);
+    }
+}
+
+const deleteProfile = async(req,res)=>{
+  
+    try{
+       const userId = req.result._id;
+      
+    // userSchema delete
+    await User.findByIdAndDelete(userId);
+
+    // Submission se bhi delete karo...
+    
+    // await Submission.deleteMany({userId});
+    
+    res.status(200).send("Deleted Successfully");
+
+    }
+    catch(err){
+      
+        res.status(500).send("Internal Server Error");
+    }
+}
 
 
-
-module.exports = {register, login,logout};
+module.exports = {register, login,logout,adminRegister,deleteProfile};
