@@ -1,35 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {Routes, Route ,Navigate} from "react-router";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
-function App() {
-  const [count, setCount] = useState(0)
+import { useDispatch, useSelector } from 'react-redux';
+import { checkAuth } from "./authSlice";
+import { useEffect } from "react";
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+import ProblemPage from "./pages/ProblemPage"
+
+
+function App(){
+  
+  const dispatch = useDispatch();
+  const {isAuthenticated,user,loading} = useSelector((state)=>state.auth);
+
+  // check initial authentication
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+  
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <span className="loading loading-spinner loading-lg"></span>
+    </div>;
+  }
+
+  return(
+  <>
+    <Routes>
+      <Route path="/" element={isAuthenticated ?<Homepage></Homepage>:<Navigate to="/signup" />}></Route>
+      <Route path="/login" element={isAuthenticated?<Navigate to="/" />:<Login></Login>}></Route>
+      <Route path="/signup" element={isAuthenticated?<Navigate to="/" />:<Signup></Signup>}></Route>
+     
+      <Route path="/problem/:problemId" element={<ProblemPage/>}></Route>
+      
+    </Routes>
+  </>
   )
 }
 
-export default App
+export default App;
