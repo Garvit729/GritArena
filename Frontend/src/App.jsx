@@ -1,7 +1,7 @@
 import {Routes, Route ,Navigate} from "react-router";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-
+import Admin from "./pages/Admin";
 import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from "./authSlice";
 import { useEffect } from "react";
@@ -31,6 +31,7 @@ function App(){
       <Route path="/" element={isAuthenticated ?<Homepage></Homepage>:<Navigate to="/signup" />}></Route>
       <Route path="/login" element={isAuthenticated?<Navigate to="/" />:<Login></Login>}></Route>
       <Route path="/signup" element={isAuthenticated?<Navigate to="/" />:<Signup></Signup>}></Route>
+      <Route path="/admin" element={isAuthenticated && user?.role === 'admin' ? <Admin /> : <Navigate to="/" />} />
      
       <Route path="/problem/:problemId" element={<ProblemPage/>}></Route>
       
